@@ -18,7 +18,45 @@ Spring data Jpa提供对JPA功能的封装简化调用的处理。但是在部�
 
 ## Quick Started
 
+* Spring Data Jpa 特性使用
 
+  ```java
+  interface PersonRepository extends Repository<Person, Long> {
+    List<Person> findByLastname(String lastname);
+  }
+  ```
+
+* 动态JPQL
+
+  ```java
+  SpecificationBuilder<T> spcfiBuilder = SpecificationBuilder.getInstance(T.class);
+  spcfiBuilder.like("name", "name");
+  spcfiBuilder.eq("no", "no");
+  dao.findAll(spcfiBuilder.build());
+  ```
+
+* 动态SQL
+
+  ```java
+  //普通查询
+  SQLSpecificationBuilder spcfiBuilder =SQLBaseSearchSpecification.getInstance();
+  spcfiBuilder.eq("no", "no");
+  dao.findAllBySQLSpefc(spcfiBuilder.build());
+  //分页查询
+  Sort sort = new Sort(new Order(Direction.DESC, "creatTime");
+  dao.findAllBySQLSpefc(spcfiBuilder.build(), sort);
+  ```
+
+* 直接调用对应查询语句
+
+  ```java
+  //JPQL查询语句
+  List<T> datas = dao.findAllByJPQL("FROM XX WHERE id = ?1 AND (state = -1 OR state = -98) ",T.class, 2); //参数:JPQL,返回类型，JPQL参数
+  //SQL查询语句
+  dao.findAllBySQL("select * from XX where id = ?", 1);
+  ```
+
+### Specification指令
 
 ## API
 
@@ -30,28 +68,28 @@ Spring data Jpa提供对JPA功能的封装简化调用的处理。但是在部�
 
 JPQL
 
-| 方法                                                         | 说明 |
-| ------------------------------------------------------------ | ---- |
-| Page<T> findPageViewByJPQL(String jpql, int startPosition, int size, Map<String, Object> hits, Object... params) |      |
-| <E> void executeUpdateByJPQL(String jpql, Map<String, Object> hits, Object... params) |      |
-| <E> List<E> findAllByJPQL(String jpql, Class<E> classType, Map<String, Object> hits, Object... params) |      |
-| <E> E findSingleResultByJPQL(String jpql, Class<E> classType, Map<String, Object> hits, Object... params) |      |
-| Long getCountByJPQL(String jqpl, Map<String, Object> hits, Object... params) |      |
-| <E> List<E> findScrollResultByJPQL(String jpql, Class<E> classType, int startPosition, int size, Map<String, Object> hits, Object... params) |      |
-| <E> Page<E> findPageViewByJPQL(String jpql, String totalJqpl, Class<E> classType, int startPosition, int size, Map<String, Object> hits, Object... params) |      |
-|                                                              |      |
+| 方法                                                         | 说明                                         |
+| ------------------------------------------------------------ | -------------------------------------------- |
+| Page<T> findPageViewByJPQL(String jpql, int startPosition, int size, Map<String, Object> hits, Object... params) | 根据JPQL分页查询                             |
+| <E> void executeUpdateByJPQL(String jpql, Map<String, Object> hits, Object... params) | 执行更新操作的JPQL                           |
+| <E> List<E> findAllByJPQL(String jpql, Class<E> classType, Map<String, Object> hits, Object... params) | 根据JPQL查询列表，并指定返回类型             |
+| <E> E findSingleResultByJPQL(String jpql, Class<E> classType, Map<String, Object> hits, Object... params) | 根据JPQL查询单个结果，并指定返回类型         |
+| Long getCountByJPQL(String jqpl, Map<String, Object> hits, Object... params) | 根据JPQL计算总数                             |
+| <E> List<E> findScrollResultByJPQL(String jpql, Class<E> classType, int startPosition, int size, Map<String, Object> hits, Object... params) | 根据JPQL查询列表，滚动指定页数并指定返回类型 |
+| <E> Page<E> findPageViewByJPQL(String jpql, String totalJqpl, Class<E> classType, int startPosition, int size, Map<String, Object> hits, Object... params) | 根据JPQL分页查询，可指定计算总数JPQL         |
+|                                                              |                                              |
 
 SQL
 
 | 方法名                                                       | 说明 |
 | ------------------------------------------------------------ | ---- |
-| Page<T> findPageViewBySQL(String sql, int startPosition, int size, Object... params) |      |
-| <E> void executeUpdateBySQL(String sql, Object... params)    |      |
-| <E> List<E> findAllBySQL(String sql, Class<E> classType, Object... params) |      |
-| <E> E findSingleResultBySQL(String sql, Class<E> classType, Object... params) |      |
-| Long getCountBySQL(String sql, Object... params)             |      |
-| <E> List<E> findScrollResultBySQL(String sql, Class<E> classType, int startPosition, int size, Map<String, Object> params) |      |
-| <E> Page<E> findPageViewBySQL(String sql, Class<E> classType, int startPosition, int size, Object... params) |      |
-| Page<?> findRawPageViewBySQL(String sql, String totalSql, int startPosition, int size, Object... params) |      |
-|findAllBySQLSpefc||
-|find(.+)BySQLSpefc||
+| Page<T> findPageViewBySQL(String sql, int startPosition, int size, Object... params) | 根据SQL分页查询 |
+| <E> void executeUpdateBySQL(String sql, Object... params)    | 执行更新操作的SQL |
+| <E> List<E> findAllBySQL(String sql, Class<E> classType, Object... params) | 根据SQL查询列表，并指定返回类型 |
+| <E> E findSingleResultBySQL(String sql, Class<E> classType, Object... params) | 根据SQL查询单个结果，并指定返回类型 |
+| Long getCountBySQL(String sql, Object... params)             | 根据SQL计算总数 |
+| <E> List<E> findScrollResultBySQL(String sql, Class<E> classType, int startPosition, int size, Map<String, Object> params) | 根据SQL查询列表，滚动指定页数并指定返回类型 |
+| <E> Page<E> findPageViewBySQL(String sql, Class<E> classType, int startPosition, int size, Object... params) | 根据SQL分页查询,并指定返回类型 |
+| Page<?> findRawPageViewBySQL(String sql, String totalSql, int startPosition, int size, Object... params) | 根据SQL分页查询,指定返回类型为Object |
+|findAllBySQLSpefc|根据动态语句API自动生成查询|
+|find(.+)BySQLSpefc|其他根据动态语句API自动生成查询列表，单个结果或分页查询|
